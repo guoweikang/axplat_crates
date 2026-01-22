@@ -1,6 +1,5 @@
 //! AArch64 boot entry point - Position-independent code
 
-use core::arch::asm;
 use crate::{BootInfo, boot_info::BootProtocol};
 use crate::protocol::detect_boot_protocol;
 
@@ -38,12 +37,33 @@ static mut SAVED_X1: usize = 0;
 /// Discovered physical load address
 static mut PHYS_LOAD_ADDR: usize = 0;
 
-/// AArch64 boot entry point (Position-independent)
+/// AArch64 boot entry point with Linux Image Header (Position-independent)
+///
+/// Documentation: <https://docs.kernel.org/arch/arm64/booting.html>
 #[unsafe(naked)]
 #[unsafe(no_mangle)]
 #[unsafe(link_section = ".text.boot")]
 pub unsafe extern "C" fn _start() -> ! {
+    const FLAG_LE: usize = 0b0;
+    const FLAG_PAGE_SIZE_4K: usize = 0b10;
+    const FLAG_ANY_MEM: usize = 0b1000;
+    
     core::arch::naked_asm!(
+        // ARM64 Linux Image Header (64 bytes)
+        "add     x13, x18, #0x16",     // MZ magic for PE/COFF compatibility
+        "b       2f",                   // Branch to actual entry point
+        
+        ".quad   0",                    // Image load offset from start of RAM
+        ".quad   _ekernel - _start",    // Effective image size
+        ".quad   {flags}",              // Kernel flags (LE, 4KB pages, any memory)
+        ".quad   0",                    // reserved
+        ".quad   0",                    // reserved
+        ".quad   0",                    // reserved
+        ".ascii  \"ARM\\x64\"",         // Magic number "ARM\x64"
+        ".long   0",                    // reserved (PE COFF offset)
+        
+        // Actual entry point (after 64-byte header)
+        "2:",
         // Save boot parameters
         "mov x19, x0",
         "mov x20, x1",
@@ -70,6 +90,7 @@ pub unsafe extern "C" fn _start() -> ! {
         // Jump to Rust initialization
         "b {rust_init}",
 
+        flags = const FLAG_LE | FLAG_PAGE_SIZE_4K | FLAG_ANY_MEM,
         phys_load_addr = sym PHYS_LOAD_ADDR,
         boot_stack = sym BOOT_STACK,
         boot_stack_size = const BOOT_STACK_SIZE,

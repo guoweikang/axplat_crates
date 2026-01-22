@@ -10,6 +10,7 @@ fn main() {
     
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-env-changed=DWARF");
+    println!("cargo:rerun-if-env-changed=CPU_NUM");
     
     match arch.as_str() {
         "aarch64" => {
@@ -45,6 +46,17 @@ fn generate_linker_script_aarch64(out_dir: &str) {
             linker_script_path.display(),
             e
         ));
+    
+    // Get CPU_NUM from environment, default to 1
+    let cpu_num: usize = env::var("CPU_NUM")
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(1);
+    
+    println!("cargo:warning=Building with CPU_NUM = {}", cpu_num);
+    
+    // Replace %CPU_NUM% placeholder
+    let ld_content = ld_content.replace("%CPU_NUM%", &cpu_num.to_string());
     
     // Replace %DWARF% placeholder
     let dwarf_sections = if env::var("DWARF").is_ok_and(|v| v == "y") {

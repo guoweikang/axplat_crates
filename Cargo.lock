@@ -12,6 +12,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "aarch64-pmuv3"
+version = "0.1.0"
+source = "git+https://github.com/kylin-x-kernel/aarch64-pmuv3.git?branch=lzx%2Fdev#03386fadce2ad4886c484ecced2f9b05fd65d977"
+dependencies = [
+ "log",
+ "tock-registers 0.10.1",
+]
+
+[[package]]
 name = "anstream"
 version = "0.6.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -188,6 +197,7 @@ name = "axplat-aarch64-peripherals"
 version = "0.3.0"
 dependencies = [
  "aarch64-cpu",
+ "aarch64-pmuv3",
  "arm-gic-driver",
  "arm_pl011",
  "arm_pl031",
@@ -198,6 +208,7 @@ dependencies = [
  "lazyinit",
  "log",
  "page_table_entry",
+ "percpu",
  "spin 0.10.0",
  "uart_16550",
 ]
@@ -303,6 +314,20 @@ dependencies = [
  "x86",
  "x86_64",
  "x86_rtc",
+]
+
+[[package]]
+name = "axplat_bootloader"
+version = "0.1.0"
+dependencies = [
+ "aarch64-cpu",
+ "axplat",
+ "bitflags 2.9.2",
+ "cfg-if",
+ "fdt",
+ "log",
+ "memory_addr",
+ "page_table_entry",
 ]
 
 [[package]]
@@ -542,6 +567,12 @@ dependencies = [
  "serde",
  "typeid",
 ]
+
+[[package]]
+name = "fdt"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "784a4df722dc6267a04af36895398f59d21d07dce47232adf31ec0ff2fa45e67"
 
 [[package]]
 name = "form_urlencoded"

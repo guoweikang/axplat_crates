@@ -8,7 +8,7 @@ const UART_BASE: usize = 0x09000000;
 
 /// UART registers
 const UART_DR: usize = UART_BASE + 0x00;
-const UART_FR:  usize = UART_BASE + 0x18;
+const UART_FR: usize = UART_BASE + 0x18;
 
 /// Flag register bits
 const UART_FR_TXFF: u32 = 1 << 5;
@@ -23,15 +23,15 @@ impl Uart {
     }
 
     #[inline]
-    pub fn putc(&self, c:  u8) {
+    pub fn putc(&self, c: u8) {
         unsafe {
             while (ptr::read_volatile(UART_FR as *const u32) & UART_FR_TXFF) != 0 {}
-            ptr:: write_volatile(UART_DR as *mut u32, c as u32);
+            ptr::write_volatile(UART_DR as *mut u32, c as u32);
         }
     }
 
     pub fn puts(&self, s: &str) {
-        for byte in s. bytes() {
+        for byte in s.bytes() {
             self.putc(byte);
         }
     }
@@ -50,4 +50,3 @@ pub fn _print(args: fmt::Arguments) {
 
     Writer.write_fmt(args).ok();
 }
-

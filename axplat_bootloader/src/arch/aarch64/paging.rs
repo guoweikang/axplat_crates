@@ -1,15 +1,16 @@
 //! AArch64 page table setup (simple linear mapping)
 
-use crate::memory::{PhysAddr, VirtAddr, LINEAR_MAP_OFFSET, PAGE_SIZE_1G};
+use crate::memory::{LINEAR_MAP_OFFSET, PAGE_SIZE_1G, PhysAddr, VirtAddr};
 
 /// Set up simple linear mapping page tables
 ///
 /// Mapping:  VA = PA + LINEAR_MAP_OFFSET
 /// Uses 1GB huge pages for fast setup
-pub fn setup_linear_mapping(
-    max_memory_gb: usize,
-) -> PhysAddr {
-    info!("Setting up linear mapping for {} GB of memory", max_memory_gb);
+pub fn setup_linear_mapping(max_memory_gb: usize) -> PhysAddr {
+    info!(
+        "Setting up linear mapping for {} GB of memory",
+        max_memory_gb
+    );
 
     // TODO:
     // 1. Allocate page table memory

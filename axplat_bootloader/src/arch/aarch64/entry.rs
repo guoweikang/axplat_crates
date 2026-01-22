@@ -1,7 +1,7 @@
 //! AArch64 boot entry point - Position-independent code
 
-use crate::{BootInfo, boot_info::BootProtocol};
 use crate::protocol::detect_boot_protocol;
+use crate::{BootInfo, boot_info::BootProtocol};
 
 // Import linker script symbols (compatible with StarryOS)
 unsafe extern "C" {
@@ -58,12 +58,12 @@ pub unsafe extern "C" fn _start() -> ! {
     const FLAG_LE: usize = 0b0;
     const FLAG_PAGE_SIZE_4K: usize = 0b10;
     const FLAG_ANY_MEM: usize = 0b1000;
-    
+
     core::arch::naked_asm!(
         // ARM64 Linux Image Header (64 bytes)
         "add     x13, x18, #0x16",     // MZ magic for PE/COFF compatibility
         "b       2f",                   // Branch to actual entry point
-        
+
         ".quad   0",                    // Image load offset from start of RAM
         ".quad   _ekernel - _start",    // Effective image size
         ".quad   {flags}",              // Kernel flags (LE, 4KB pages, any memory)
@@ -72,7 +72,7 @@ pub unsafe extern "C" fn _start() -> ! {
         ".quad   0",                    // reserved
         ".ascii  \"ARM\\x64\"",         // Magic number "ARM\x64"
         ".long   0",                    // reserved (PE COFF offset)
-        
+
         // Actual entry point (after 64-byte header)
         "2:",
         // Save boot parameters
@@ -125,7 +125,7 @@ extern "C" fn rust_init() -> ! {
     let protocol = unsafe { detect_boot_protocol(x0, x1) };
     println!("Detected boot protocol: {:?}", protocol);
 
-    let mut boot_info = BootInfo:: new(protocol);
+    let mut boot_info = BootInfo::new(protocol);
     boot_info.kernel_phys_base = phys_load;
 
     match protocol {
@@ -133,25 +133,23 @@ extern "C" fn rust_init() -> ! {
             boot_info.dtb_phys_addr = x0;
             super::dtb::handle_devicetree_boot(&mut boot_info, x0);
         }
-        BootProtocol:: UEFI => {
+        BootProtocol::UEFI => {
             boot_info.uefi_system_table = x1;
             super::uefi::handle_uefi_boot(&mut boot_info, x0, x1);
         }
         _ => {
-            panic! ("Unsupported boot protocol:  {:?}", protocol);
+            panic!("Unsupported boot protocol:  {:?}", protocol);
         }
     }
 
     panic!("Bootloader:  kernel entry not implemented yet!");
 }
 
-
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
     println!("\n! !! PANIC !!!");
     println!("{}", info);
     loop {
-        unsafe { core::arch:: asm!("wfe") };
+        unsafe { core::arch::asm!("wfe") };
     }
 }
-

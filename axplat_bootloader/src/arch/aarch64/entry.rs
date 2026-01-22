@@ -21,6 +21,17 @@ unsafe extern "C" {
     static _ebss: u8;
 }
 
+macro_rules! println {
+    () => {
+        $crate::arch::aarch64::uart::_print(format_args!("\n"))
+    };
+    ($($arg:tt)*) => {
+        $crate::arch::aarch64::uart::_print(
+            format_args!("{}\n", format_args!($($arg)*))
+        )
+    };
+}
+
 /// Boot stack size
 const BOOT_STACK_SIZE: usize = 64 * 1024;
 
@@ -107,12 +118,12 @@ extern "C" fn rust_init() -> ! {
     let x0 = unsafe { SAVED_X0 };
     let x1 = unsafe { SAVED_X1 };
 
-    info!("axplat_bootloader starting.. .");
-    info!("Physical load address: {:#x}", phys_load);
-    info!("Boot registers: X0={:#x}, X1={:#x}", x0, x1);
+    println!("axplat_bootloader starting.. .");
+    println!("Physical load address: {:#x}", phys_load);
+    println!("Boot registers: X0={:#x}, X1={:#x}", x0, x1);
 
     let protocol = unsafe { detect_boot_protocol(x0, x1) };
-    info!("Detected boot protocol: {:?}", protocol);
+    println!("Detected boot protocol: {:?}", protocol);
 
     let mut boot_info = BootInfo:: new(protocol);
     boot_info.kernel_phys_base = phys_load;
@@ -133,3 +144,14 @@ extern "C" fn rust_init() -> ! {
 
     panic!("Bootloader:  kernel entry not implemented yet!");
 }
+
+
+#[panic_handler]
+fn panic(info: &core::panic::PanicInfo) -> ! {
+    println!("\n! !! PANIC !!!");
+    println!("{}", info);
+    loop {
+        unsafe { core::arch:: asm!("wfe") };
+    }
+}
+

@@ -7,6 +7,15 @@ authors.workspace = true
 license.workspace = true
 homepage.workspace = true
 repository.workspace = true
+build = "build.rs"
+
+[lib]
+name = "axplat_bootloader"
+path = "src/lib.rs"
+
+[[bin]]
+name = "axplat-bootloader"
+path = "src/bin/bootloader.rs"
 
 [features]
 default = []

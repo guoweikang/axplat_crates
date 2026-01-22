@@ -1,5 +1,6 @@
 //! AArch64 architecture support
 
+pub mod uart;
 pub mod entry;
 pub mod dtb;
 pub mod uefi;

@@ -77,7 +77,7 @@ fn generate_linker_script_aarch64(out_dir: &str) {
     let ld_content = ld_content.replace("%DWARF%", dwarf_sections);
     
     // Write processed linker script to output directory
-    let dst = Path::new(out_dir).join("linker. lds");
+    let dst = Path::new(out_dir).join("linker.lds");
     fs::write(&dst, ld_content)
         .unwrap_or_else(|e| panic! ("Failed to write linker script:  {}", e));
     

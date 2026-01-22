@@ -5,6 +5,7 @@
 
 #![no_std]
 #![feature(naked_functions)]
+#![feature(panic_info_message)]
 
 use memory::{PhysAddr, VirtAddr};
 
@@ -19,6 +20,7 @@ pub mod memory;
 cfg_if::cfg_if! {
     if #[cfg(target_arch = "aarch64")] {
         pub mod arch {
+            #[macro_use]
             pub mod aarch64;
         }
         pub use arch::aarch64 as current_arch;

@@ -16,21 +16,21 @@ SECTIONS
     .text :  ALIGN(4K) {
         _stext = .;
         *(.text.boot)
-        *(.text . text.*)
+        *(.text .text.*)
         . = ALIGN(4K);
         _etext = .;
     }
 
     /* Read-only data */
     _srodata = .;
-    . rodata : ALIGN(4K) {
+    .rodata : ALIGN(4K) {
         *(.rodata .rodata.*)
         *(.srodata .srodata.*)
         *(.sdata2 .sdata2.*)
     }
 
     /* C++ global constructors */
-    . init_array : ALIGN(0x10) {
+    .init_array : ALIGN(0x10) {
         __init_array_start = .;
         *(.init_array .init_array.*)
         __init_array_end = .;
@@ -39,22 +39,22 @@ SECTIONS
     /* DWARF debug sections placeholder */
     %DWARF%
 
-    .  = ALIGN(4K);
+    . = ALIGN(4K);
     _erodata = .;
 
     /* Data section */
-    .data :  ALIGN(4K) {
+    .data : ALIGN(4K) {
         _sdata = .;
-        *(.data. boot_page_table)
+        *(.data.boot_page_table)
         . = ALIGN(4K);
-        *(.data . data.*)
+        *(.data .data.*)
         *(.sdata .sdata.*)
-        *(.got . got.*)
+        *(.got .got.*)
 
         /* Driver registration */
         . = ALIGN(0x10);
         __sdriver_register = .;
-        KEEP(*(. driver. register*))
+        KEEP(*(.driver.register*))
         __edriver_register = .;
 
         /* Exception table */
@@ -65,22 +65,22 @@ SECTIONS
     }
 
     /* Thread-local storage data */
-    .tdata :  ALIGN(0x10) {
+    .tdata : ALIGN(0x10) {
         _stdata = .;
-        *(. tdata .tdata.*)
+        *(.tdata .tdata.*)
         _etdata = .;
     }
 
     /* Thread-local storage BSS */
-    .tbss :  ALIGN(0x10) {
+    .tbss : ALIGN(0x10) {
         _stbss = .;
         *(.tbss .tbss.*)
         *(.tcommon)
-        _etbss = . ;
+        _etbss = .;
     }
 
     /* Per-CPU variables */
-    .  = ALIGN(4K);
+    . = ALIGN(4K);
     _percpu_start = .;
 
     .percpu 0x0 : AT(_percpu_start) {
@@ -101,13 +101,13 @@ SECTIONS
     .bss : ALIGN(4K) {
         boot_stack = .;
         _boot_stack_start = .;
-        *(.bss. stack)
+        *(.bss.stack)
         . = ALIGN(4K);
         boot_stack_top = .;
         _boot_stack_end = .;
 
         _sbss = .;
-        *(. bss . bss.*)
+        *(.bss .bss.*)
         *(.sbss .sbss.*)
         *(COMMON)
         . = ALIGN(4K);
@@ -115,10 +115,10 @@ SECTIONS
     }
 
     _bootloader_end = .;
-    _ekernel = . ;
+    _ekernel = .;
 
     /DISCARD/ : {
-        *(. comment)
+        *(.comment)
         *(.gnu*)
         *(.note*)
         *(.eh_frame*)
@@ -127,11 +127,11 @@ SECTIONS
 
 /* Rust linkme support */
 SECTIONS {
-    linkme_IRQ :  { KEEP(*(linkme_IRQ)) }
+    linkme_IRQ : { KEEP(*(linkme_IRQ)) }
     linkm2_IRQ : { KEEP(*(linkm2_IRQ)) }
     linkme_PAGE_FAULT : { KEEP(*(linkme_PAGE_FAULT)) }
     linkm2_PAGE_FAULT : { KEEP(*(linkm2_PAGE_FAULT)) }
-    scope_local :  { KEEP(*(scope_local)) }
+    scope_local : { KEEP(*(scope_local)) }
 }
 INSERT AFTER .tbss;
 

@@ -1,20 +1,39 @@
 //! Universal bootloader for axplat
 //!
-//!  Provides a unified bootloader supporting multiple architectures
-//! and boot protocols (UEFI, Device Tree, etc.)
+//! Provides a unified bootloader supporting multiple architectures
+//! and boot protocols (Multiboot, Device Tree, UEFI).
+//!
+//! # Design Principles
+//!
+//! 1. **Progressive Integration**: New bootloader can be optionally enabled via feature flags
+//! 2. **Relocatable Kernel Support**: Handles kernels loaded at arbitrary physical addresses
+//! 3. **Clear Separation**: Bootloader parses protocols → Kernel consumes BootInfo
+//! 4. **Multi-arch/Multi-protocol**: Uses traits for abstraction
+//!
+//! # Architecture
+//!
+//! ```text
+//! Boot Protocol (Multiboot/DT/UEFI)
+//!          ↓
+//!    BootProtocolParser trait
+//!          ↓
+//!      BootInfo (unified)
+//!          ↓
+//!   ArchBootOps trait
+//!          ↓
+//!    Kernel Entry
+//! ```
 
 #![no_std]
-#![feature(naked_functions)]
-#![feature(panic_info_message)]
 
-use memory::{PhysAddr, VirtAddr};
-
-#[macro_use]
 extern crate log;
 
 pub mod boot_info;
-pub mod protocol;
 pub mod memory;
+pub mod protocol;
+pub mod protocols;
+pub mod relocate;
+pub mod traits;
 
 // Architecture-specific modules
 cfg_if::cfg_if! {
@@ -28,7 +47,7 @@ cfg_if::cfg_if! {
         pub mod arch {
             pub mod x86_64;
         }
-        pub use arch:: x86_64 as current_arch;
+        pub use arch::x86_64 as current_arch;
     } else if #[cfg(target_arch = "riscv64")] {
         pub mod arch {
             pub mod riscv64;
@@ -38,7 +57,9 @@ cfg_if::cfg_if! {
 }
 
 // Re-export commonly used types
-pub use boot_info::{BootInfo, BootProtocol, MemoryRegion, MemoryType};
+pub use boot_info::{BootInfo, BootProtocol, DtbInfo, MemoryRegion, MemoryRegions, MemoryType};
+pub use protocols::{DeviceTreeParser, MultibootParser};
+pub use traits::{ArchBootOps, BootProtocolParser, ParseError, RelocatableOps};
 
 /// Bootloader version information
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

@@ -21,7 +21,7 @@ pub unsafe fn detect_boot_protocol(x0: usize, x1: usize) -> BootProtocol {
         let potential_signature = unsafe { *(x1 as *const u64) };
         if potential_signature == UEFI_SYSTEM_TABLE_SIGNATURE {
             info!("Detected UEFI boot protocol (System Table at {:#x})", x1);
-            return BootProtocol:: UEFI;
+            return BootProtocol::UEFI;
         }
     }
 
@@ -30,17 +30,20 @@ pub unsafe fn detect_boot_protocol(x0: usize, x1: usize) -> BootProtocol {
         // First 4 bytes of DTB is magic (big-endian)
         let potential_magic = unsafe { *(x0 as *const u32) };
         if u32::from_be(potential_magic) == DTB_MAGIC {
-            info! ("Detected Device Tree boot protocol (DTB at {:#x})", x0);
+            info!("Detected Device Tree boot protocol (DTB at {:#x})", x0);
             return BootProtocol::DeviceTree;
         }
     }
 
-    panic!("Unable to detect boot protocol!  X0={:#x}, X1={:#x}", x0, x1);
+    panic!(
+        "Unable to detect boot protocol!  X0={:#x}, X1={:#x}",
+        x0, x1
+    );
 }
 
 /// x86_64 boot protocol detection (future implementation)
 #[cfg(target_arch = "x86_64")]
-pub unsafe fn detect_boot_protocol(eax: u32, ebx: usize) -> BootProtocol {
+pub unsafe fn detect_boot_protocol(eax: u32, _ebx: usize) -> BootProtocol {
     // Multiboot magic:  0x2BADB002
     const MULTIBOOT_MAGIC: u32 = 0x2BADB002;
 

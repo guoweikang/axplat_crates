@@ -25,10 +25,10 @@ pub const fn virt_to_phys(vaddr: VirtAddr) -> PhysAddr {
 pub const PAGE_SIZE_4K: usize = 0x1000;
 
 /// Large page size (2MB)
-pub const PAGE_SIZE_2M:  usize = 0x20_0000;
+pub const PAGE_SIZE_2M: usize = 0x20_0000;
 
 /// Huge page size (1GB)
-pub const PAGE_SIZE_1G:  usize = 0x4000_0000;
+pub const PAGE_SIZE_1G: usize = 0x4000_0000;
 
 /// Align down to 4KB page boundary
 #[inline]
